@@ -9,14 +9,22 @@ import (
 
 func ExampleSanitize() {
 	input := `<b>Hello</b> <script>alert('xss')</script>`
-	clean, _ := htmlsanitizer.Sanitize(input, htmlsanitizer.DefaultPolicy())
+	clean, err := htmlsanitizer.Sanitize(input, htmlsanitizer.DefaultPolicy())
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
 	fmt.Println(clean)
 	// Output: <b>Hello</b>
 }
 
 func ExampleStripTags() {
 	input := `<p>Hello <b>world</b></p>`
-	text, _ := htmlsanitizer.StripTags(input)
+	text, err := htmlsanitizer.StripTags(input)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
 	fmt.Println(text)
 	// Output: Hello world
 }
@@ -29,7 +37,11 @@ func ExampleSanitize_customPolicy() {
 		StripDisallowed: true,
 	}
 	input := `<b>bold</b> <div>stripped</div>`
-	clean, _ := htmlsanitizer.Sanitize(input, p)
+	clean, err := htmlsanitizer.Sanitize(input, p)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
 	fmt.Println(clean)
 	// Output: <b>bold</b>
 }
@@ -45,7 +57,11 @@ func ExampleSanitize_transformer() {
 		},
 	}
 	input := `<a href="https://example.com">link</a>`
-	clean, _ := htmlsanitizer.Sanitize(input, p)
+	clean, err := htmlsanitizer.Sanitize(input, p)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
 	fmt.Println(clean)
 	// Output: <a href="https://example.com" target="_blank">link</a>
 }

@@ -66,9 +66,9 @@ type Policy struct {
 var urlRegexp = regexp.MustCompile(`https?://[^"` + "'" + `<>\s]+`)
 
 // DefaultPolicy returns a Policy that allows a common safe subset of
-// HTML used in content — headings, paragraphs, formatting, lists,
-// links, images, code, blockquotes — while rejecting script, style,
-// and other dangerous tags. Links and image sources must use http,
+// HTML used in content — headings, paragraphs, formatting, lists, 
+// links, images, code, blockquotes — while rejecting script, style, 
+// and other dangerous tags. Links and image sources must use http, 
 // https, or mailto.
 func DefaultPolicy() *Policy {
 	return &Policy{

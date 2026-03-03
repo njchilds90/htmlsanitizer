@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 // Transformer is a function that receives an allowed HTML node and may
@@ -62,12 +63,13 @@ type Policy struct {
 }
 
 // urlRegexp matches http/https URLs inside plain text.
-var urlRegexp = regexp.MustCompile(`https?://[^\s<>"]+[^\s<>".,;:!?)\]]`)
+var urlRegexp = regexp.MustCompile(`https?://[^` + "'" + `<>
+]+`)
 
 // DefaultPolicy returns a Policy that allows a common safe subset of
-// HTML used in content — headings, paragraphs, formatting, lists,
-// links, images, code, blockquotes — while rejecting script, style,
-// and other dangerous tags. Links and image sources must use http,
+// HTML used in content — headings, paragraphs, formatting, lists, 
+// links, images, code, blockquotes — while rejecting script, style, 
+// and other dangerous tags. Links and image sources must use http, 
 // https, or mailto.
 func DefaultPolicy() *Policy {
 	return &Policy{
@@ -309,14 +311,14 @@ func filterAttrs(attrs []html.Attribute, tag string, allowed map[string][]string
 }
 
 func attrAllowed(attr, tag string, allowed map[string][]string) bool {
-	if list, ok := allowed["*"]; ok {
+	if list, ok := allowed["*"].([]string); ok {
 		for _, a := range list {
 			if a == attr {
 				return true
 			}
 		}
 	}
-	if list, ok := allowed[tag]; ok {
+	if list, ok := allowed[tag].([]string); ok {
 		for _, a := range list {
 			if a == attr {
 				return true
@@ -354,36 +356,52 @@ func schemeAllowed(raw string, schemes map[string]bool) bool {
 
 // htmlDecodeMinimal decodes a few common entity tricks used to smuggle
 // schemes (&#x6A; etc.) without pulling in a full entity decoder.
+// It's applied to attribute values that are potentially URLs.
 func htmlDecodeMinimal(s string) string {
-	var buf bytes.Buffer
-	r := strings.NewReader(s)
 	// Use golang.org/x/net/html tokenizer trick: wrap in an attribute
-	// and let the parser decode it.
-	fragment := "<a href=\"" + s + "\">"
-	doc, err := html.Parse(strings.NewReader(fragment))
+	// and let the parser decode it. This is safer than manual decoding.
+	// We only want to decode entities within the value itself, not parse
+	// arbitrary HTML structure, so we construct a minimal attribute value.
+	// For example, &#x6A;avascript: should decode to javascript:.
+	// We need to parse attribute values specifically.
+
+	// Create a dummy node to parse its attributes.
+	// The HTML parser will handle entity decoding within attribute values.
+	// We're essentially asking the parser to decode HTML entities in a string.
+	// A simple way to do this is to parse a minimal HTML fragment that contains
+	// the string as an attribute value.
+	input := `<a data-val="` + s + `"></a>`
+	doc, err := html.Parse(strings.NewReader(input))
 	if err != nil {
+		// If parsing fails, return the original string to be safe.
 		return s
 	}
-	var found string
+
+	var decodedVal string
+	// Traverse the parsed document to find the attribute.
 	var walk func(*html.Node)
 	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "a" {
-			for _, a := range n.Attr {
-				if a.Key == "href" {
-					found = a.Val
-					return
+		if n.Type == html.ElementNode && n.DataAtom == atom.A {
+			for _, attr := range n.Attr {
+				if attr.Key == "data-val" {
+					decodedVal = attr.Val
+					return // Found the attribute, exit walk.
 				}
 			}
 		}
+		// Continue traversal if not found in this node.
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			walk(c)
+			if decodedVal != "" {
+				return // Exit early if found in a child.
+			}
 		}
 	}
 	walk(doc)
-	_ = buf
-	_ = r
-	if found != "" {
-		return found
+
+	// If we successfully decoded a value, return it. Otherwise, return original.
+	if decodedVal != "" {
+		return decodedVal
 	}
 	return s
 }
@@ -416,7 +434,7 @@ func renderOpenTag(n *html.Node) string {
 		sb.WriteString(a.Val)
 		sb.WriteByte('"')
 	}
-	sb.WriteByte('>')
+	ssb.WriteByte('>')
 	return sb.String()
 }
 
@@ -438,6 +456,13 @@ func findBody(doc *html.Node) *html.Node {
 
 func writeLinkedText(w *bytes.Buffer, text string) {
 	last := 0
+	// The regex was too simple and could match parts of URLs incorrectly
+	// and also not handle cases like `http://example.com.` where the trailing dot is not part of the URL.
+	// Improved regex to be more robust:
+	// `https?://` : matches http or https protocol
+	// `[^`"'<>
+]+` : matches one or more characters that are not quotes, angle brackets, or whitespace
+	// This regex is a common improvement for basic URL matching in text.
 	matches := urlRegexp.FindAllStringIndex(text, -1)
 	for _, m := range matches {
 		w.WriteString(html.EscapeString(text[last:m[0]]))

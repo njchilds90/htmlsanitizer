@@ -44,5 +44,4 @@
 // # Example
 //
 //	p := htmlsanitizer.DefaultPolicy()
-//	clean, err := htmlsanitizer.Sanitize(userInput, p)
-package htmlsanitizer
+	clean, err := htmlsanitizer.Sanitize(userInput, p)

@@ -159,7 +159,9 @@ func TestSanitize_TransformerNilRemovesNode(t *testing.T) {
 		t.Fatal(err)
 	}
 	// When a transformer returns nil for a node, the node and its children are removed.
-	// The text content within that node is also removed.
+	// However, any text content within that node should still be processed and potentially preserved.
+	// In this case, "remove me" is text content of the 'b' tag, which is removed.
+	// The text "keep" should still be present as it's outside the removed 'b' tag.
 	if strings.Contains(got, "remove me") {
 		t.Errorf("transformer returned nil so node 'b' and its content should be gone, but 'remove me' found: %s", got)
 	}

@@ -21,7 +21,7 @@ A fast, flexible HTML sanitizer for Go. Strip unwanted tags and attributes, enfo
 
 ## Installation
 ```bash
-go install github.com/njchilds90/htmlsanitizer/cmd/htmlsanitizer@latest
+go install github.com/njchilds90/htmlsanitizer@latest
 ```
 
 ## Quick Start

@@ -63,8 +63,7 @@ type Policy struct {
 }
 
 // urlRegexp matches http/https URLs inside plain text.
-var urlRegexp = regexp.MustCompile(`https?://[^` + "'" + `<>
-]+`)
+var urlRegexp = regexp.MustCompile(`https?://[^"` + "'" + `<>\s]+`)
 
 // DefaultPolicy returns a Policy that allows a common safe subset of
 // HTML used in content — headings, paragraphs, formatting, lists, 
@@ -460,8 +459,7 @@ func writeLinkedText(w *bytes.Buffer, text string) {
 	// and also not handle cases like `http://example.com.` where the trailing dot is not part of the URL.
 	// Improved regex to be more robust:
 	// `https?://` : matches http or https protocol
-	// `[^`"'<>
-]+` : matches one or more characters that are not quotes, angle brackets, or whitespace
+	// `[^`"'<>\s]+` : matches one or more characters that are not quotes, angle brackets, or whitespace
 	// This regex is a common improvement for basic URL matching in text.
 	matches := urlRegexp.FindAllStringIndex(text, -1)
 	for _, m := range matches {

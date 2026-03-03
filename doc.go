@@ -43,5 +43,6 @@
 //
 // # Example
 //
-//	p := htmlsanitizer.DefaultPolicy()
-	clean, err := htmlsanitizer.Sanitize(userInput, p)
+//	p p := htmlsanitizer.DefaultPolicy()
+//	clean, err := htmlsanitizer.Sanitize(userInput, p)
+package htmlsanitizer

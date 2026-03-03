@@ -103,7 +103,7 @@ func TestSanitize_RelativeURLAllowed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(got, `href="/about"`) {
+	if !strings.Contains(got, "href=\"/about\"") {
 		t.Errorf("relative href should be preserved: %s", got)
 	}
 }
@@ -138,7 +138,7 @@ func TestSanitize_Transformer(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(got, `target="_blank"`) {
+	if !strings.Contains(got, "target=\"_blank\"") {
 		t.Errorf("transformer should add target=_blank: %s", got)
 	}
 }
@@ -158,8 +158,13 @@ func TestSanitize_TransformerNilRemovesNode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// When a transformer returns nil for a node, the node and its children are removed.
+	// The text content within that node is also removed.
 	if strings.Contains(got, "remove me") {
-		t.Errorf("transformer returned nil so node should be gone: %s", got)
+		t.Errorf("transformer returned nil so node 'b' and its content should be gone, but 'remove me' found: %s", got)
+	}
+	if !strings.Contains(got, "keep") {
+		t.Errorf("expected 'keep' to survive sanitization: %s", got)
 	}
 }
 

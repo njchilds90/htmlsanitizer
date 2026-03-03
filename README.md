@@ -21,7 +21,7 @@ A fast, flexible HTML sanitizer for Go. Strip unwanted tags and attributes, enfo
 
 ## Installation
 ```bash
-go get github.com/njchilds90/htmlsanitizer
+go install github.com/njchilds90/htmlsanitizer/cmd/htmlsanitizer@latest
 ```
 
 ## Quick Start
@@ -106,38 +106,38 @@ policy.MaxDepth = 5 // strip nodes nested deeper than 5 levels
 
 ## API Reference
 
-| Function | Description |
+| Function | Description | 
 |---|---|
-| `Sanitize(html string, p *Policy) (string, error)` | Sanitize HTML string with given policy |
-| `SanitizeReader(r io.Reader, p *Policy) (string, error)` | Sanitize from an `io.Reader` |
-| `StripTags(html string) (string, error)` | Remove all HTML, return plain text |
-| `DefaultPolicy() *Policy` | Returns a safe, permissive default policy |
-| `SetAttr(n *html.Node, key, val string)` | Helper to set attribute on a node |
-| `GetAttr(n *html.Node, key string) string` | Helper to get attribute value from a node |
+| `Sanitize(html string, p *Policy) (string, error)` | Sanitize HTML string with given policy | 
+| `SanitizeReader(r io.Reader, p *Policy) (string, error)` | Sanitize from an `io.Reader` | 
+| `StripTags(html string) (string, error)` | Remove all HTML, return plain text | 
+| `DefaultPolicy() *Policy` | Returns a safe, permissive default policy | 
+| `SetAttr(n *html.Node, key, val string)` | Helper to set attribute on a node | 
+| `GetAttr(n *html.Node, key string) string` | Helper to get attribute value from a node | 
 
 ## Policy Fields
 
-| Field | Type | Description |
+| Field | Type | Description | 
 |---|---|---|
-| `AllowedTags` | `[]string` | Tags to keep (all others stripped/escaped) |
-| `AllowedAttributes` | `map[string][]string` | Per-tag allowed attributes |
-| `AllowedSchemes` | `[]string` | URL schemes allowed in href/src |
-| `StripDisallowed` | `bool` | Strip vs HTML-escape disallowed tags |
-| `Transformers` | `[]Transformer` | Functions to mutate allowed nodes |
-| `Linkify` | `bool` | Auto-link URLs in text nodes |
-| `MaxDepth` | `int` | Max nesting depth (0 = unlimited) |
+| `AllowedTags` | `[]string` | Tags to keep (all others stripped/escaped) | 
+| `AllowedAttributes` | `map[string][]string` | Per-tag allowed attributes | 
+| `AllowedSchemes` | `[]string` | URL schemes allowed in href/src | 
+| `StripDisallowed` | `bool` | Strip vs HTML-escape disallowed tags | 
+| `Transformers` | `[]Transformer` | Functions to mutate allowed nodes | 
+| `Linkify` | `bool` | Auto-link URLs in text nodes | 
+| `MaxDepth` | `int` | Max nesting depth (0 = unlimited) | 
 
 ## Comparison
 
-| Feature | htmlsanitizer | bluemonday | goquery |
+| Feature | htmlsanitizer | bluemonday | goquery | 
 |---|---|---|---|
-| Allow-list tags/attrs | ✅ | ✅ | ❌ |
-| URL scheme filtering | ✅ | ✅ | ❌ |
-| Node transformers | ✅ | ⚠️ limited | ✅ |
-| Linkify | ✅ | ❌ | ❌ |
-| Simple one-call API | ✅ | ❌ | ❌ |
-| Depth limiting | ✅ | ❌ | ❌ |
-| Plain text extract | ✅ | ❌ | ⚠️ |
+| Allow-list tags/attrs | ✅ | ✅ | ❌ | 
+| URL scheme filtering | ✅ | ✅ | ❌ | 
+| Node transformers | ✅ | ⚠️ limited | ✅ | 
+| Linkify | ✅ | ❌ | ❌ | 
+| Simple one-call API | ✅ | ❌ | ❌ | 
+| Depth limiting | ✅ | ❌ | ❌ | 
+| Plain text extract | ✅ | ❌ | ⚠️ | 
 
 ## Contributing
 
